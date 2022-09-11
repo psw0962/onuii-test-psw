@@ -8,7 +8,13 @@ import styled from 'styled-components';
 import Frame from 'components/frame';
 import { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { cartListAtom } from 'atoms';
+import { cartListAtom, toastAtom } from 'atoms';
+import Toast from 'components/toast';
+
+interface cartList {
+  count: number;
+  data: ProductList[] | [];
+}
 
 interface ProductList {
   id: string;
@@ -19,8 +25,11 @@ interface ProductList {
 }
 
 const Enrollment: NextPage = () => {
-  const [productList, setProductList] = useState<ProductList[] | null>(null);
   const [cartList, setCartList] = useRecoilState(cartListAtom);
+  const [toast, setToast] = useRecoilState(toastAtom);
+  const [productList, setProductList] = useState<ProductList[] | null>(null);
+
+  console.log('outside', cartList?.data);
 
   const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(1);
@@ -38,24 +47,48 @@ const Enrollment: NextPage = () => {
   };
 
   const onClickAddCart = (product: ProductList) => {
-    console.log(cartList.find((x) => x.id === product.id));
-
-    if (!!cartList.find((x) => x.id === product.id)) {
+    // 갯수 제한
+    if (
+      !!cartList?.data?.find((item) => item.id === product.id) !== true &&
+      cartList?.data?.length + 1 > 3
+    ) {
+      setToast(() => {
+        return { filterKey: 'length', state: true };
+      });
       return;
     }
 
-    setCartList((prev: ProductList[]) => {
-      return [...prev, product];
-    });
+    // 빼기
+    if (!!cartList?.data?.find((item) => item.id === product.id)) {
+      setCartList((prev: cartList) => {
+        return {
+          count: prev.count - 1,
+          data: cartList?.data?.filter((item) => item.id !== product.id),
+        };
+      });
+
+      setToast(() => {
+        return { filterKey: 'delete', state: true };
+      });
+
+      return;
+    }
+
+    // 담기
+    if (cartList?.data?.find((item) => item.id === product.id) === undefined) {
+      setCartList((prev: cartList) => {
+        return { count: prev.count + 1, data: [...prev.data, product] };
+      });
+
+      setToast(() => {
+        return { filterKey: 'add', state: true };
+      });
+    }
   };
 
   useEffect(() => {
     getProductList();
   }, []);
-
-  useEffect(() => {
-    console.log(cartList);
-  }, [cartList]);
 
   return (
     <Frame>
@@ -78,7 +111,7 @@ const Enrollment: NextPage = () => {
 
               <AddCartWrapper className="hide">
                 <Font size={16} fontWeight={700} onClick={() => onClickAddCart(product)}>
-                  담기
+                  {!!cartList?.data?.find((item) => item.id === product.id) ? '빼기' : '담기'}
                 </Font>
               </AddCartWrapper>
             </ProductCard>
@@ -87,6 +120,12 @@ const Enrollment: NextPage = () => {
       </GridFrame>
 
       <Pagination total={productList?.length} limit={limit} page={page} setPage={setPage} />
+
+      {toast.filterKey === 'add' && <Toast value="선택한 상품이 장바구니에 담겼습니다" />}
+      {toast.filterKey === 'delete' && <Toast value="선택한 상품이 장바구니에서 삭제되었습니다" />}
+      {toast.filterKey === 'length' && (
+        <Toast value="장바구니에는 최대 3개의 상품이 담길 수 있습니다" />
+      )}
     </Frame>
   );
 };

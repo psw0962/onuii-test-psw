@@ -1,5 +1,10 @@
 import { atom, selector } from 'recoil';
 
+interface cartList {
+  count: number;
+  data: ProductList[] | [];
+}
+
 interface ProductList {
   id: string;
   image: string;
@@ -8,7 +13,18 @@ interface ProductList {
   rating: number;
 }
 
-export const cartListAtom = atom<ProductList[] | []>({
+export const cartListAtom = atom<cartList>({
   key: 'cartList',
-  default: [],
+  default: {
+    count: 0,
+    data: [],
+  },
+});
+
+export const toastAtom = atom({
+  key: 'toast',
+  default: {
+    filterKey: '',
+    state: false,
+  },
 });

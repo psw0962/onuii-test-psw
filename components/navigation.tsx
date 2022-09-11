@@ -6,15 +6,27 @@ const Navigation = () => {
   const router = useRouter();
   return (
     <Frame>
-      <div></div>
+      <CustomFont className="left" size={21}></CustomFont>
 
-      <Font size={21} pointer={true} fontWeight={700} onClick={() => router.push('/')}>
+      <CustomFont
+        className="center"
+        size={21}
+        pointer={true}
+        fontWeight={700}
+        onClick={() => router.push('/')}
+      >
         Onuii
-      </Font>
+      </CustomFont>
 
-      <Font size={21} pointer={true} fontWeight={700} onClick={() => router.push('/cart')}>
+      <CustomFont
+        className="right"
+        size={21}
+        pointer={true}
+        fontWeight={700}
+        onClick={() => router.push('/cart')}
+      >
         Cart
-      </Font>
+      </CustomFont>
     </Frame>
   );
 };
@@ -22,9 +34,24 @@ const Navigation = () => {
 export default Navigation;
 
 const Frame = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
   height: 5rem;
   padding: 0 2rem;
+`;
+
+const CustomFont = styled(Font)`
+  display: flex;
+  align-items: center;
+
+  &.left {
+    justify-content: flex-start;
+  }
+  &.center {
+    justify-content: center;
+  }
+  &.right {
+    justify-content: flex-end;
+  }
 `;
