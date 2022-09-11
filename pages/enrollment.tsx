@@ -17,6 +17,7 @@ interface cartList {
 }
 
 interface ProductList {
+  availableCoupon?: boolean;
   id: string;
   image: string;
   name: string;
@@ -145,7 +146,6 @@ const GridFrame = styled.div`
 const ImageWrapper = styled.div`
   position: relative;
   height: 20rem;
-  z-index: 1;
 `;
 
 const AddCartWrapper = styled.div`

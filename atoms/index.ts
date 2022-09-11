@@ -6,6 +6,7 @@ interface cartList {
 }
 
 interface ProductList {
+  availableCoupon?: boolean;
   id: string;
   image: string;
   name: string;
@@ -27,4 +28,9 @@ export const toastAtom = atom({
     filterKey: '',
     state: false,
   },
+});
+
+export const countAtom = atom<number>({
+  key: 'count',
+  default: 1,
 });

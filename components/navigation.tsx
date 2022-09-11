@@ -6,7 +6,15 @@ const Navigation = () => {
   const router = useRouter();
   return (
     <Frame>
-      <CustomFont className="left" size={21}></CustomFont>
+      <CustomFont
+        className="left"
+        size={21}
+        pointer={true}
+        fontWeight={700}
+        onClick={() => router.push('/enrollment')}
+      >
+        상품
+      </CustomFont>
 
       <CustomFont
         className="center"
