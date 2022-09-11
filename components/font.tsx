@@ -66,6 +66,11 @@ type FontProps = {
    * margin 조절이 필요한 경우 ex) 10px 10px 10px 10px
    */
   margin?: string;
+
+  /**
+   * className이 필요한 경우
+   */
+  className?: string;
 };
 
 const Font = styled.p<FontProps>`

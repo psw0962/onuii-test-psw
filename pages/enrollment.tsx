@@ -3,8 +3,12 @@ import Font from 'components/font';
 import Pagination from 'components/pagination';
 import { NextPage } from 'next';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+
 import styled from 'styled-components';
+import Frame from 'components/frame';
+import { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { cartListAtom } from 'atoms';
 
 interface ProductList {
   id: string;
@@ -16,6 +20,7 @@ interface ProductList {
 
 const Enrollment: NextPage = () => {
   const [productList, setProductList] = useState<ProductList[] | null>(null);
+  const [cartList, setCartList] = useRecoilState(cartListAtom);
 
   const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(1);
@@ -32,9 +37,25 @@ const Enrollment: NextPage = () => {
     }
   };
 
+  const onClickAddCart = (product: ProductList) => {
+    console.log(cartList.find((x) => x.id === product.id));
+
+    if (!!cartList.find((x) => x.id === product.id)) {
+      return;
+    }
+
+    setCartList((prev: ProductList[]) => {
+      return [...prev, product];
+    });
+  };
+
   useEffect(() => {
     getProductList();
   }, []);
+
+  useEffect(() => {
+    console.log(cartList);
+  }, [cartList]);
 
   return (
     <Frame>
@@ -54,6 +75,12 @@ const Enrollment: NextPage = () => {
               <CustomFont size={16}>
                 {product.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}원
               </CustomFont>
+
+              <AddCartWrapper className="hide">
+                <Font size={16} fontWeight={700} onClick={() => onClickAddCart(product)}>
+                  담기
+                </Font>
+              </AddCartWrapper>
             </ProductCard>
           );
         })}
@@ -66,12 +93,7 @@ const Enrollment: NextPage = () => {
 
 export default Enrollment;
 
-const Frame = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 0 2rem 2rem 2rem;
-`;
-
+// frame
 const GridFrame = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -80,21 +102,31 @@ const GridFrame = styled.div`
   flex-direction: column;
 `;
 
-const ProductCard = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  padding: 1rem;
-  box-shadow: rgb(0 0 0 / 16%) 0px 0px 8px;
-  border-radius: 10px;
-  cursor: pointer;
-`;
-
+// wrapper
 const ImageWrapper = styled.div`
   position: relative;
   height: 20rem;
+  z-index: 1;
 `;
 
+const AddCartWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: absolute;
+  bottom: 0;
+  width: calc(100% - 2rem);
+  height: 10rem;
+
+  z-index: 10;
+  transition: all 0.3s;
+  background-color: #fff;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+`;
+
+// component
 const CustomImage = styled(Image)`
   position: absolute;
 `;
@@ -103,4 +135,27 @@ const CustomFont = styled(Font)`
   display: flex;
   justify-content: flex-end;
   margin-top: 2rem;
+`;
+
+const ProductCard = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem;
+  box-shadow: rgb(0 0 0 / 16%) 0px 0px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+
+  transition: all 0.3s;
+
+  .hide {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  &:hover .hide {
+    visibility: visible;
+    opacity: 1;
+  }
 `;

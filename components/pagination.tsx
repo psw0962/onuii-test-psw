@@ -1,6 +1,7 @@
-import { Dispatch, SetStateAction, useEffect } from 'react';
+// import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
 import Font from 'components/font';
+import { useEffect, Dispatch, SetStateAction } from 'react';
 
 interface Props {
   total: number | undefined;

@@ -1,10 +1,16 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
-  images: {
-    domains: ['asset.seoltab.com'],
-  },
-};
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const withInterceptStdout = require('next-intercept-stdout');
 
-module.exports = nextConfig;
+const nextConfig = {};
+
+module.exports = withInterceptStdout(
+  {
+    reactStrictMode: true,
+    swcMinify: true,
+    images: {
+      domains: ['asset.seoltab.com'],
+    },
+  },
+  (text) => (text.includes('Duplicate atom key') ? '' : text)
+);

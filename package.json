@@ -12,9 +12,11 @@
     "axios": "^0.27.2",
     "babel-plugin-styled-components": "^2.0.7",
     "next": "12.3.0",
+    "next-intercept-stdout": "^1.0.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-fade-in": "^2.0.1",
+    "recoil": "^0.7.5",
     "styled-components": "^5.3.5",
     "styled-reset": "^4.4.2",
     "use-local-storage": "^2.3.6"
