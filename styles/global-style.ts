@@ -8,23 +8,13 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
 
-  /* body width 이상 */
-  @media (min-width: 1201px) {
+  html {
+    font-size: 2.2vw;
+  }
+
+  @media screen and (min-width: 450px) {
     html {
       font-size: 10px;
-    }
-  }
-
-  /* body width */
-  @media screen and (max-width: 1200px) {
-    html {
-      font-size: 0.833vw;
-    }
-  }
-
-  @media screen and (max-width: 520px) {
-    html {
-      font-size: 2vw;
     }
   }
 
