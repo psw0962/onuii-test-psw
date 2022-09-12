@@ -1,9 +1,9 @@
 import { atom, selector } from 'recoil';
 
-interface cartList {
-  count: number;
-  data: ProductList[] | [];
-}
+// interface cartList {
+//   count: number;
+//   data: ProductList[] | [];
+// }
 
 interface ProductList {
   availableCoupon?: boolean;
@@ -14,12 +14,14 @@ interface ProductList {
   rating: number;
 }
 
-export const cartListAtom = atom<cartList>({
+export const cartListAtom = atom<any>({
   key: 'cartList',
-  default: {
-    count: 0,
-    data: [],
-  },
+  default: [],
+});
+
+export const cartCheckedListAtom = atom<any>({
+  key: 'cartCheckedList',
+  default: [],
 });
 
 export const toastAtom = atom({

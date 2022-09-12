@@ -1,55 +1,125 @@
-import { countAtom } from 'atoms';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import Font from 'components/font';
+import { useRecoilState } from 'recoil';
+import { cartCheckedListAtom, cartListAtom } from 'atoms';
 
-const CartList = (props: any) => {
-  const { item, result, setResult } = props;
-  const [count, setCount] = useState<number | string>(1);
+const CartList = ({ item }: any) => {
   const [isChecked, setChecked] = useState(false);
+  const [cartList, setCartList] = useRecoilState(cartListAtom);
+  const [cartCheckedList, setCartCheckedList] = useRecoilState(cartCheckedListAtom);
 
-  const checkHandler = (e: React.FormEvent<HTMLInputElement>, item: any, result: any) => {
+  const checkHandler = (e: React.FormEvent<HTMLInputElement>) => {
     setChecked(!isChecked);
 
-    if (!!result?.find((x: any) => x.data.id === item.id)) {
-      setResult(result.filter((y: any) => y.data.id !== item.id));
+    if (!!cartCheckedList?.find((x: any) => x.data.id === item?.id)) {
+      setCartCheckedList(cartCheckedList.filter((y: any) => y.data.id !== item?.id));
       return;
     }
 
-    setResult((prev: any) => {
-      return [...prev, { data: item, count: count }];
+    setCartCheckedList((prev: any) => {
+      return [...prev, { data: item?.data, count: item?.count }];
     });
   };
 
   useEffect(() => {
-    if (count === 0) {
-      setCount(1);
-      alert('1개 미만의 수량은 지정할 수 없습니다.');
+    const cartListIndex = cartList?.findIndex((x: any) => x?.data?.id === item?.data?.id);
+    const cartCheckedListIndex = cartCheckedList?.findIndex(
+      (x: any) => x?.data?.id === item?.data?.id
+    );
+
+    // cartList
+    if (cartList[cartListIndex]?.count === 0) {
+      const temp = {
+        data: cartList[cartListIndex]?.data,
+        count: 1,
+      };
+      setCartList((prev: any) => {
+        return [...prev.slice(0, cartListIndex), temp, ...prev.slice(cartListIndex + 1)];
+      });
+      return alert('1개 미만의 수량은 지정할 수 없습니다.');
     }
-  }, [count]);
+
+    // cartCheckedList
+    if (cartCheckedListIndex >= 0 && cartCheckedList[cartCheckedListIndex]?.count === 0) {
+      const temp = {
+        data: cartCheckedList[cartCheckedListIndex]?.data,
+        count: 1,
+      };
+
+      setCartCheckedList((prev: any) => {
+        return [
+          ...prev.slice(0, cartCheckedListIndex),
+          temp,
+          ...prev.slice(cartCheckedListIndex + 1),
+        ];
+      });
+    }
+  }, [cartList]);
+
+  useEffect(() => {
+    return () => {
+      setCartCheckedList([]);
+    };
+  }, []);
 
   return (
     <Frame>
-      <input type="checkbox" checked={isChecked} onChange={(e) => checkHandler(e, item, result)} />
+      <input type="checkbox" checked={isChecked} onChange={(e) => checkHandler(e)} />
 
       <ProductWrapper>
         <ImageWrapper>
-          <CustomImage src={item.image} alt={`product${item.id}`} priority={true} layout="fill" />
+          <CustomImage
+            src={item?.data?.image}
+            alt={`product${item?.data?.id}`}
+            priority={true}
+            layout="fill"
+          />
         </ImageWrapper>
 
         <ProductInfoWrapper>
-          <Font size={16}>{item.name}</Font>
-          <Font size={16}>{item.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}원</Font>
+          <Font size={16}>{item?.data?.name}</Font>
+          <Font size={16}>
+            {item?.data?.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}원
+          </Font>
         </ProductInfoWrapper>
       </ProductWrapper>
 
       <CountInput
         type="text"
-        value={count}
+        value={item.count}
+        onFocus={(e) => e.target.select()}
         onChange={(e) => {
-          setCount(Number(e.target.value));
+          const cartListIndex = cartList?.findIndex((x: any) => x?.data?.id === item?.data?.id);
+          const cartCheckedListIndex = cartCheckedList?.findIndex(
+            (x: any) => x?.data?.id === item?.data?.id
+          );
+
+          // cartList
+          const temp = {
+            data: cartList[cartListIndex]?.data,
+            count: Number(e.target.value),
+          };
+          setCartList((prev: any) => {
+            return [...prev.slice(0, cartListIndex), temp, ...prev.slice(cartListIndex + 1)];
+          });
+
+          // cartCheckedList
+          if (cartCheckedListIndex >= 0) {
+            const temp = {
+              data: cartCheckedList[cartCheckedListIndex]?.data,
+              count: Number(e.target.value),
+            };
+
+            setCartCheckedList((prev: any) => {
+              return [
+                ...prev.slice(0, cartCheckedListIndex),
+                temp,
+                ...prev.slice(cartCheckedListIndex + 1),
+              ];
+            });
+          }
         }}
       />
     </Frame>
@@ -63,8 +133,6 @@ const Frame = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 2rem;
-  margin-top: 4rem;
 `;
 
 // wrapper

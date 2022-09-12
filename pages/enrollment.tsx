@@ -11,10 +11,10 @@ import { useRecoilState } from 'recoil';
 import { cartListAtom, toastAtom } from 'atoms';
 import Toast from 'components/toast';
 
-interface cartList {
-  count: number;
-  data: ProductList[] | [];
-}
+// interface cartList {
+//   count: number;
+//   data: ProductList[] | [];
+// }
 
 interface ProductList {
   availableCoupon?: boolean;
@@ -29,8 +29,6 @@ const Enrollment: NextPage = () => {
   const [cartList, setCartList] = useRecoilState(cartListAtom);
   const [toast, setToast] = useRecoilState(toastAtom);
   const [productList, setProductList] = useState<ProductList[] | null>(null);
-
-  console.log('outside', cartList?.data);
 
   const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(1);
@@ -50,8 +48,8 @@ const Enrollment: NextPage = () => {
   const onClickAddCart = (product: ProductList) => {
     // 갯수 제한
     if (
-      !!cartList?.data?.find((item) => item.id === product.id) !== true &&
-      cartList?.data?.length + 1 > 3
+      !!cartList?.find((item: any) => item.data.id === product.id) !== true &&
+      cartList?.length + 1 > 3
     ) {
       setToast(() => {
         return { filterKey: 'length', state: true };
@@ -60,12 +58,9 @@ const Enrollment: NextPage = () => {
     }
 
     // 빼기
-    if (!!cartList?.data?.find((item) => item.id === product.id)) {
-      setCartList((prev: cartList) => {
-        return {
-          count: prev.count - 1,
-          data: cartList?.data?.filter((item) => item.id !== product.id),
-        };
+    if (!!cartList?.find((item: any) => item.data.id === product.id)) {
+      setCartList((prev: any) => {
+        return cartList?.filter((item: any) => item.data.id !== product.id);
       });
 
       setToast(() => {
@@ -76,9 +71,9 @@ const Enrollment: NextPage = () => {
     }
 
     // 담기
-    if (cartList?.data?.find((item) => item.id === product.id) === undefined) {
-      setCartList((prev: cartList) => {
-        return { count: prev.count + 1, data: [...prev.data, product] };
+    if (cartList?.find((item: any) => item.data.id === product.id) === undefined) {
+      setCartList((prev: any) => {
+        return [...prev, { data: product, count: 1 }];
       });
 
       setToast(() => {
@@ -89,6 +84,15 @@ const Enrollment: NextPage = () => {
 
   useEffect(() => {
     getProductList();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      setToast({
+        filterKey: '',
+        state: false,
+      });
+    };
   }, []);
 
   return (
@@ -112,7 +116,7 @@ const Enrollment: NextPage = () => {
 
               <AddCartWrapper className="hide">
                 <Font size={16} fontWeight={700} onClick={() => onClickAddCart(product)}>
-                  {!!cartList?.data?.find((item) => item.id === product.id) ? '빼기' : '담기'}
+                  {!!cartList?.find((item: any) => item.data.id === product.id) ? '빼기' : '담기'}
                 </Font>
               </AddCartWrapper>
             </ProductCard>
