@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { useEffect, useState } from 'react';
 import { cartCheckedListAtom, cartListAtom } from 'atoms';
 import { useRecoilState } from 'recoil';
@@ -12,12 +13,14 @@ import { useRouter } from 'next/router';
 interface CouponList {
   type: string;
   name: string;
-  discountRate: number;
+  discountRate?: number;
+  discountAmount?: number;
 }
 
 const Cart = () => {
   const router = useRouter();
   const [couponList, setCouponList] = useState<CouponList[] | null>(null);
+  const [discount, setDiscount] = useState<string>('적용 안함');
   const [cartList, setCartList] = useRecoilState(cartListAtom);
   const [cartCheckedList, setCartCheckedList] = useRecoilState(cartCheckedListAtom);
 
@@ -32,20 +35,76 @@ const Cart = () => {
     }
   };
 
-  const makeResultPrice = () => {
-    let result = 0;
-    console.log(couponList);
+  useEffect(() => {
+    getCouponList();
+  }, []);
+
+  const unDiscountProduct = () => {
+    let result: any = [];
 
     cartCheckedList.forEach((x: any) => {
-      result = result + x.data.price * x.count;
+      if (x.data.availableCoupon !== undefined) {
+        result.push(x.data?.name);
+      }
     });
 
     return result;
   };
 
-  useEffect(() => {
-    getCouponList();
-  }, []);
+  const makeResultPrice = () => {
+    let result = 0;
+    let availableResult = 0;
+    let unAvailableResult = 0;
+    const available: number[] = [];
+    const unAvailable: number[] = [];
+
+    cartCheckedList.forEach((x: any) => {
+      if (x.data.availableCoupon === undefined) {
+        available.push(x.data.price * x.count);
+      } else {
+        unAvailable.push(x.data.price * x.count);
+      }
+    });
+
+    available.forEach((x) => {
+      availableResult = availableResult + x;
+    });
+
+    unAvailable.forEach((x) => {
+      unAvailableResult = unAvailableResult + x;
+    });
+
+    if (discount === '적용 안함') {
+      result = availableResult + unAvailableResult;
+      return result;
+    }
+
+    if (discount === '정액 할인') {
+      let temp = availableResult - 50000;
+
+      if (temp > 0) {
+        result = temp + unAvailableResult;
+        return result;
+      } else {
+        result = unAvailableResult;
+      }
+
+      return result;
+    }
+
+    if (discount === '비율 할인') {
+      let temp = availableResult - availableResult * 0.15;
+
+      if (temp > 0) {
+        result = temp + unAvailableResult;
+        return result;
+      } else {
+        result = unAvailableResult;
+      }
+
+      return result;
+    }
+  };
 
   return (
     <Frame>
@@ -73,32 +132,98 @@ const Cart = () => {
       <Line />
 
       <DiscountFrame>
-        <DiscountWrapper>
-          <input type="radio" id="discountAmount" name="discount" value="정액 할인" />
-          <label htmlFor="discountAmount">정액 할인</label>
-        </DiscountWrapper>
+        <Font size={21} fontWeight={600}>
+          쿠폰 적용
+        </Font>
 
-        <DiscountWrapper>
-          <input type="radio" id="discountRate" name="discount" value="비율 할인" />
-          <label htmlFor="discountRate">비율 할인</label>
-        </DiscountWrapper>
+        <DisCountInnerWrapper>
+          <DiscountWrapper>
+            <input
+              type="radio"
+              id="unDiscount"
+              name="discount"
+              value="적용 안함"
+              checked={discount === '적용 안함'}
+              onChange={(e) => setDiscount(e.target.value)}
+            />
+            <label htmlFor="unDiscount">적용 안함</label>
+          </DiscountWrapper>
+
+          <DiscountWrapper>
+            <input
+              type="radio"
+              id="discountAmount"
+              name="discount"
+              value="정액 할인"
+              onChange={(e) => setDiscount(e.target.value)}
+            />
+            <label htmlFor="discountAmount">정액 할인</label>
+          </DiscountWrapper>
+
+          <DiscountWrapper>
+            <input
+              type="radio"
+              id="discountRate"
+              name="discount"
+              value="비율 할인"
+              onChange={(e) => setDiscount(e.target.value)}
+            />
+            <label htmlFor="discountRate">비율 할인</label>
+          </DiscountWrapper>
+        </DisCountInnerWrapper>
       </DiscountFrame>
 
       <Line />
 
-      <div>전체금액:{makeResultPrice()}</div>
+      <ReasultFrame>
+        {unDiscountProduct().length > 0 && (
+          <UnDiscountListWrapper>
+            <div>
+              {unDiscountProduct().map((x: any, index: number) => {
+                return (
+                  <Font size={18} fontWeight={600} key={index}>
+                    {x} {unDiscountProduct().length - 1 !== index && ','}
+                  </Font>
+                );
+              })}
+            </div>
+
+            <Font size={16}>위 상품은 할인 상품에 포함되지 않습니다.</Font>
+          </UnDiscountListWrapper>
+        )}
+
+        <Font size={21} fontWeight={600} margin="4rem 0 0 0">
+          {`결제 금액 :
+          ${makeResultPrice()
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          원`}
+        </Font>
+      </ReasultFrame>
     </Frame>
   );
 };
 
 export default Cart;
 
+// frame
 const DiscountFrame = styled.div`
   display: flex;
   justify-content: center;
+  flex-direction: column;
   gap: 2rem;
 `;
 
+const ReasultFrame = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  margin-top: 4rem;
+`;
+
+// wrapper
 const HeaderWrapper = styled.div`
   display: flex;
   justify-content: space-between;
@@ -120,6 +245,11 @@ const CardListWrapper = styled.div`
   gap: 2rem;
 `;
 
+const DisCountInnerWrapper = styled.div`
+  display: flex;
+  gap: 2rem;
+`;
+
 const DiscountWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -130,6 +260,19 @@ const DiscountWrapper = styled.div`
   }
 `;
 
+const UnDiscountListWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  div {
+    display: flex;
+    gap: 1rem;
+  }
+`;
+
+// component
 const CustomButton = styled.button`
   background-color: #000;
   color: #fff;

@@ -13,8 +13,8 @@ const CartList = ({ item }: any) => {
   const checkHandler = (e: React.FormEvent<HTMLInputElement>) => {
     setChecked(!isChecked);
 
-    if (!!cartCheckedList?.find((x: any) => x.data.id === item?.id)) {
-      setCartCheckedList(cartCheckedList.filter((y: any) => y.data.id !== item?.id));
+    if (!!cartCheckedList?.find((x: any) => x.data.id === item?.data?.id)) {
+      setCartCheckedList(cartCheckedList.filter((y: any) => y.data.id !== item?.data?.id));
       return;
     }
 
@@ -107,6 +107,7 @@ const CartList = ({ item }: any) => {
 
           // cartCheckedList
           if (cartCheckedListIndex >= 0) {
+            console.log('here');
             const temp = {
               data: cartCheckedList[cartCheckedListIndex]?.data,
               count: Number(e.target.value),
@@ -120,6 +121,8 @@ const CartList = ({ item }: any) => {
               ];
             });
           }
+
+          e.target.select();
         }}
       />
     </Frame>
