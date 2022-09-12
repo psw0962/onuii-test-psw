@@ -10,6 +10,7 @@ const CartList = ({ item }: any) => {
   const [cartList, setCartList] = useRecoilState(cartListAtom);
   const [cartCheckedList, setCartCheckedList] = useRecoilState(cartCheckedListAtom);
 
+  // 상품 목록 체크 핸들러
   const checkHandler = (e: React.FormEvent<HTMLInputElement>) => {
     setChecked(!isChecked);
 
@@ -23,6 +24,7 @@ const CartList = ({ item }: any) => {
     });
   };
 
+  // 수량제한 이펙트
   useEffect(() => {
     const cartListIndex = cartList?.findIndex((x: any) => x?.data?.id === item?.data?.id);
     const cartCheckedListIndex = cartCheckedList?.findIndex(
@@ -58,6 +60,7 @@ const CartList = ({ item }: any) => {
     }
   }, [cartList]);
 
+  // 체크 목록 초기화
   useEffect(() => {
     return () => {
       setCartCheckedList([]);
@@ -107,7 +110,6 @@ const CartList = ({ item }: any) => {
 
           // cartCheckedList
           if (cartCheckedListIndex >= 0) {
-            console.log('here');
             const temp = {
               data: cartCheckedList[cartCheckedListIndex]?.data,
               count: Number(e.target.value),

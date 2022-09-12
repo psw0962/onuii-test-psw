@@ -4,9 +4,16 @@ import Font from 'components/font';
 import { useEffect, Dispatch, SetStateAction } from 'react';
 
 interface Props {
+  // 페이지 전체 길이
   total: number | undefined;
+
+  // 한 페이지에 보여줄 갯수
   limit: number;
+
+  // 현재 페이지
   page: number;
+
+  // 페이지 set함수
   setPage: Dispatch<SetStateAction<number>>;
 }
 

@@ -19,11 +19,17 @@ interface CouponList {
 
 const Cart = () => {
   const router = useRouter();
+
+  // 쿠폰 리스트
   const [couponList, setCouponList] = useState<CouponList[] | null>(null);
+
+  // 할인 선택 상태
   const [discount, setDiscount] = useState<string>('적용 안함');
+
   const [cartList, setCartList] = useRecoilState(cartListAtom);
   const [cartCheckedList, setCartCheckedList] = useRecoilState(cartCheckedListAtom);
 
+  // 쿠폰 리스트 API
   const getCouponList = async () => {
     try {
       const response = await axios.get('https://doby.seoltab.workers.dev/');
@@ -39,8 +45,9 @@ const Cart = () => {
     getCouponList();
   }, []);
 
+  // 할인 상품 제외 목록 함수
   const unDiscountProduct = () => {
-    let result: any = [];
+    let result: string[] = [];
 
     cartCheckedList.forEach((x: any) => {
       if (x.data.availableCoupon !== undefined) {
@@ -51,12 +58,13 @@ const Cart = () => {
     return result;
   };
 
+  // 결제 금액 함수
   const makeResultPrice = () => {
-    let result = 0;
-    let availableResult = 0;
-    let unAvailableResult = 0;
-    const available: number[] = [];
-    const unAvailable: number[] = [];
+    let result = 0; // 최종 결제 금액
+    let availableResult = 0; // 할인 가능한 목록 합계 금액
+    let unAvailableResult = 0; // 할인 불가능한 목록 합계 금액
+    const available: number[] = []; // 할인 가능한 목록
+    const unAvailable: number[] = []; // 할인 불가능한 목록
 
     cartCheckedList.forEach((x: any) => {
       if (x.data.availableCoupon === undefined) {

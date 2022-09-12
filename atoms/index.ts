@@ -1,11 +1,11 @@
-import { atom, selector } from 'recoil';
+import { atom } from 'recoil';
 
-// interface cartList {
-//   count: number;
-//   data: ProductList[] | [];
-// }
+export interface Toast {
+  filterKey: string;
+  state: boolean;
+}
 
-interface ProductList {
+export interface ProductList {
   availableCoupon?: boolean;
   id: string;
   image: string;
@@ -14,25 +14,28 @@ interface ProductList {
   rating: number;
 }
 
-export const cartListAtom = atom<any>({
+export interface cartList {
+  count: number;
+  data: ProductList[] | [];
+}
+
+// 장바구니 담은 목록
+export const cartListAtom = atom<cartList[] | []>({
   key: 'cartList',
   default: [],
 });
 
-export const cartCheckedListAtom = atom<any>({
+// 장바구니에서 체크한 목록
+export const cartCheckedListAtom = atom<cartList[] | []>({
   key: 'cartCheckedList',
   default: [],
 });
 
-export const toastAtom = atom({
+// toast 상태
+export const toastAtom = atom<Toast>({
   key: 'toast',
   default: {
     filterKey: '',
     state: false,
   },
-});
-
-export const countAtom = atom<number>({
-  key: 'count',
-  default: 1,
 });

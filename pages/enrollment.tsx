@@ -3,7 +3,7 @@ import Font from 'components/font';
 import Pagination from 'components/pagination';
 import { NextPage } from 'next';
 import Image from 'next/image';
-
+import { ProductList, cartList } from 'atoms/index';
 import styled from 'styled-components';
 import Frame from 'components/frame';
 import { useEffect, useState } from 'react';
@@ -11,40 +11,19 @@ import { useRecoilState } from 'recoil';
 import { cartListAtom, toastAtom } from 'atoms';
 import Toast from 'components/toast';
 
-// interface cartList {
-//   count: number;
-//   data: ProductList[] | [];
-// }
-
-interface ProductList {
-  availableCoupon?: boolean;
-  id: string;
-  image: string;
-  name: string;
-  price: number;
-  rating: number;
-}
-
 const Enrollment: NextPage = () => {
-  const [cartList, setCartList] = useRecoilState(cartListAtom);
-  const [toast, setToast] = useRecoilState(toastAtom);
+  // 상품 목록
   const [productList, setProductList] = useState<ProductList[] | null>(null);
 
+  // 페이지 네이션 상태
   const [limit, setLimit] = useState(5);
   const [page, setPage] = useState(1);
   const offset = (page - 1) * limit;
 
-  const getProductList = async () => {
-    try {
-      const response = await axios.get('https://eden.seoltab.workers.dev/');
-      const deepCopyData = structuredClone(response?.data?.data);
+  const [cartList, setCartList] = useRecoilState(cartListAtom);
+  const [toast, setToast] = useRecoilState(toastAtom);
 
-      setProductList(deepCopyData?.sort((a: ProductList, b: ProductList) => b.rating - a.rating));
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
+  // 담기, 빼기 온클릭 핸들러
   const onClickAddCart = (product: ProductList) => {
     // 갯수 제한
     if (
@@ -59,7 +38,7 @@ const Enrollment: NextPage = () => {
 
     // 빼기
     if (!!cartList?.find((item: any) => item.data.id === product.id)) {
-      setCartList((prev: any) => {
+      setCartList(() => {
         return cartList?.filter((item: any) => item.data.id !== product.id);
       });
 
@@ -82,10 +61,23 @@ const Enrollment: NextPage = () => {
     }
   };
 
+  // 상품 목록 API
+  const getProductList = async () => {
+    try {
+      const response = await axios.get('https://eden.seoltab.workers.dev/');
+      const deepCopyData = structuredClone(response?.data?.data);
+
+      setProductList(deepCopyData?.sort((a: ProductList, b: ProductList) => b.rating - a.rating));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
     getProductList();
   }, []);
 
+  // toast 상태 초기화
   useEffect(() => {
     return () => {
       setToast({
